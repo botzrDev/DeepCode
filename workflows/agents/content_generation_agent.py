@@ -121,6 +121,14 @@ class ContentGenerationAgent:
             generated_content["content_variations"] = self._suggest_content_variations(
                 generated_content
             )
+            
+            # Add generation metadata for consistency with spec
+            generated_content["generation_metadata"] = {
+                "platforms_generated": len(platforms),
+                "content_type": content_type,
+                "tone": intent_analysis.get("tone", "professional"),
+                "generated_at": generated_content["created_at"]
+            }
 
             self.logger.info(f"Content generated for {len(platforms)} platforms")
             return generated_content
