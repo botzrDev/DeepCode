@@ -53,45 +53,18 @@ mcp:
     fetch:
       command: "uvx"
       args: ["mcp-server-fetch"]
-    github-downloader:
+    social-media:
       command: "python"
-      args: ["tools/git_command.py"]
+      args: ["tools/social_media_server.py"]
       env:
         PYTHONPATH: "."
-    file-downloader:
+      description: "Social media platform integration server - provides posting, analytics, and scheduling tools"
+    content-intent-analysis:
       command: "python"
-      args: ["tools/pdf_downloader.py"]
+      args: ["tools/content_intent_server.py"]
       env:
         PYTHONPATH: "."
-    command-executor:
-      command: "python"
-      args: ["tools/command_executor.py"]
-      env:
-        PYTHONPATH: "."
-    code-implementation:
-      command: "python"
-      args: ["tools/code_implementation_server.py"]
-      env:
-        PYTHONPATH: "."
-      description: "Paper code reproduction tool server - provides file operations, code execution, search and other functions"
-    code-reference-indexer:
-      command: "python"
-      args: ["tools/code_reference_indexer.py"]
-      env:
-        PYTHONPATH: "."
-      description: "Code reference indexer server - Provides intelligent code reference search from indexed repositories"
-    bocha-mcp:
-      command: "python3"
-      args: ["tools/bocha_search_server.py"]
-      env:
-        PYTHONPATH: "."
-        BOCHA_API_KEY: ""
-    document-segmentation:
-      command: "python"
-      args: ["tools/document_segmentation_server.py"]
-      env:
-        PYTHONPATH: "."
-      description: "Document segmentation server - Provides intelligent document analysis and segmented reading to optimize token usage"
+      description: "Content intent analysis server - analyzes user requests for social media content creation"
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-DeepCode CLI - Open-Source Code Agent
-深度代码CLI - 开源代码智能体
+ZenAlto CLI - AI Social Media Management Platform
+禅境社交媒体CLI - 开源社交媒体智能体
 
 🧬 Data Intelligence Lab @ HKU
-⚡ Revolutionizing Research Reproducibility through Multi-Agent Architecture
+⚡ Revolutionizing Social Media Management through Conversational AI
 """
 
 import os
@@ -30,18 +30,19 @@ def print_enhanced_banner():
     banner = f"""
 {Colors.CYAN}╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║    {Colors.BOLD}{Colors.MAGENTA}🧬 DeepCode - Open-Source Code Agent{Colors.CYAN}                              ║
+║    {Colors.BOLD}{Colors.MAGENTA}🧬 ZenAlto - AI Social Media Management Platform{Colors.CYAN}                   ║
 ║                                                                              ║
 ║    {Colors.BOLD}{Colors.YELLOW}⚡ DATA INTELLIGENCE LAB @ HKU ⚡{Colors.CYAN}                                ║
 ║                                                                              ║
-║    Revolutionizing research reproducibility through collaborative AI         ║
-║    Building the future where code is reproduced from natural language       ║
+║    Revolutionizing social media management through conversational AI         ║
+║    Building the future where conversations become optimized content          ║
 ║                                                                              ║
 ║    {Colors.BOLD}{Colors.GREEN}🤖 Key Features:{Colors.CYAN}                                                    ║
-║    • Automated paper-to-code reproduction                                   ║
-║    • Multi-agent collaborative architecture                                 ║
-║    • Open-source and extensible design                                      ║
-║    • Join our growing research community                                    ║
+║    • Conversational content creation                                       ║
+║    • Multi-platform social media management                               ║
+║    • AI-powered content optimization                                       ║
+║    • Real-time analytics and insights                                     ║
+║    • Automated scheduling and publishing                                  ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝{Colors.ENDC}
 """

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-DeepCode - AI Research Engine Launcher
+ZenAlto - AI Social Media Management Platform
 
-🧬 Next-Generation AI Research Automation Platform
-⚡ Transform research papers into working code automatically
+🧬 Next-Generation AI Social Media Automation Platform
+⚡ Transform conversations into optimized social media content automatically
 """
 
 import os

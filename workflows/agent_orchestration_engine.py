@@ -1,23 +1,23 @@
 """
-Intelligent Agent Orchestration Engine for Research-to-Code Automation
+Intelligent Agent Orchestration Engine for Social Media Management
 
 This module serves as the core orchestration engine that coordinates multiple specialized
-AI agents to automate the complete research-to-code transformation pipeline:
+AI agents to automate the complete social media content creation and management pipeline:
 
-1. Research Analysis Agent - Intelligent content processing and extraction
-2. Workspace Infrastructure Agent - Automated environment synthesis
-3. Code Architecture Agent - AI-driven design and planning
-4. Reference Intelligence Agent - Automated knowledge discovery
-5. Repository Acquisition Agent - Intelligent code repository management
-6. Codebase Intelligence Agent - Advanced relationship analysis
-7. Code Implementation Agent - AI-powered code synthesis
+1. Content Intent Agent - Understands user content goals and preferences
+2. Social Content Parser - Processes existing content and social media data
+3. Content Strategy Agent - Plans posting strategies and campaigns
+4. Platform Optimization Agent - Tailors content for specific social platforms
+5. Content Generation Agent - Creates posts, captions, and media content
+6. Scheduling Agent - Manages optimal posting times and queue
+7. Analytics Agent - Tracks performance and engagement metrics
 
 Core Features:
 - Multi-agent coordination with intelligent task distribution
-- Local environment automation for seamless deployment
-- Real-time progress monitoring with comprehensive error handling
-- Adaptive workflow optimization based on processing requirements
-- Advanced intelligence analysis with configurable performance modes
+- Real-time social media platform integration
+- Chat-driven content creation workflow
+- Adaptive content optimization based on platform requirements
+- Advanced analytics and performance tracking
 
 Architecture:
 - Async/await based high-performance agent coordination

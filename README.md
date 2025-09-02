@@ -22,9 +22,9 @@
 
 <!-- <img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&size=28&duration=2000&pause=800&color=06B6D4&background=00000000&center=true&vCenter=true&width=800&height=50&lines=%E2%9A%A1+OPEN+AGENTIC+CODING+%E2%9A%A1" alt="DeepCode Tech Subtitle" style="margin-top: 5px; filter: drop-shadow(0 0 12px #06B6D4) drop-shadow(0 0 24px rgba(6,182,212,0.4));"/> -->
 
-# <img src="https://github.com/Zongwei9888/Experiment_Images/raw/43c585dca3d21b8e4b6390d835cdd34dc4b4b23d/DeepCode_images/title_logo.svg" alt="DeepCode Logo" width="32" height="32" style="vertical-align: middle; margin-right: 8px;"/> DeepCode: Open Agentic Coding
+# <img src="https://github.com/Zongwei9888/Experiment_Images/raw/43c585dca3d21b8e4b6390d835cdd34dc4b4b23d/DeepCode_images/title_logo.svg" alt="ZenAlto Logo" width="32" height="32" style="vertical-align: middle; margin-right: 8px;"/> ZenAlto: AI Social Media Management
 
-### *Advancing Code Generation with Multi-Agent Systems*
+### *Conversational AI for Social Media Excellence*
 
 <!-- <p align="center">
   <img src="https://img.shields.io/badge/Version-1.0.0-00d4ff?style=for-the-badge&logo=rocket&logoColor=white" alt="Version">
@@ -125,7 +125,7 @@
 
 
 
-> *"Where AI Agents Transform Ideas into Production-Ready Code"*
+> *"Where Conversations Become Optimized Social Media Content"*
 
 </div>
 
@@ -152,19 +152,19 @@
 <td width="30%" align="center" style="vertical-align: top; padding: 20px;">
 
 <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<h3 style="margin: 0; padding: 0;">🚀 <strong>Paper2Code</strong></h3>
+<h3 style="margin: 0; padding: 0;">� <strong>Conversational AI</strong></h3>
 </div>
 
 <div align="center" style="margin: 15px 0;">
-  <img src="https://img.shields.io/badge/ALGORITHM-IMPLEMENTATION-ff6b6b?style=for-the-badge&logo=algorithm&logoColor=white" alt="Algorithm Badge" />
+  <img src="https://img.shields.io/badge/CONVERSATIONAL-AI-ff6b6b?style=for-the-badge&logo=robot&logoColor=white" alt="Conversational Badge" />
 </div>
 
 <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<p align="center"><strong>Automated Implementation of Complex Algorithms</strong></p>
+<p align="center"><strong>Chat-Driven Content Creation</strong></p>
 </div>
 
 <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-<p align="center">Effortlessly converts complex algorithms from research papers into <strong>high-quality</strong>, <strong>production-ready</strong> code, accelerating algorithm reproduction.</p>
+<p align="center">Transform natural conversations into optimized social media content with AI-powered intent understanding and content generation.</p>
 </div>
 
 
@@ -173,19 +173,19 @@
 <td width="30%" align="center" style="vertical-align: top; padding: 20px;">
 
 <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<h3 style="margin: 0; padding: 0;">🎨 <strong>Text2Web</strong></h3>
+<h3 style="margin: 0; padding: 0;">📱 <strong>Multi-Platform</strong></h3>
 </div>
 
 <div align="center" style="margin: 15px 0;">
-  <img src="https://img.shields.io/badge/FRONTEND-DEVELOPMENT-4ecdc4?style=for-the-badge&logo=react&logoColor=white" alt="Frontend Badge" />
+  <img src="https://img.shields.io/badge/SOCIAL-MEDIA-4ecdc4?style=for-the-badge&logo=share&logoColor=white" alt="Multi-Platform Badge" />
 </div>
 
 <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<p align="center"><strong>Automated Front-End Web Development</strong></p>
+<p align="center"><strong>Unified Social Management</strong></p>
 </div>
 
 <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-<p align="center">Translates plain textual descriptions into <strong>fully functional</strong>, <strong>visually appealing</strong> front-end web code for rapid interface creation.</p>
+<p align="center">Manage Twitter, Instagram, LinkedIn, Facebook, and YouTube from a single conversational interface with platform-specific optimization.</p>
 </div>
 
 
@@ -194,19 +194,19 @@
 <td width="30%" align="center" style="vertical-align: top; padding: 20px;">
 
 <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<h3 style="margin: 0; padding: 0;">⚙️ <strong>Text2Backend</strong></h3>
+<h3 style="margin: 0; padding: 0;">📊 <strong>Smart Analytics</strong></h3>
 </div>
 
 <div align="center" style="margin: 15px 0;">
-  <img src="https://img.shields.io/badge/BACKEND-DEVELOPMENT-9b59b6?style=for-the-badge&logo=server&logoColor=white" alt="Backend Badge" />
+  <img src="https://img.shields.io/badge/ANALYTICS-INSIGHTS-9b59b6?style=for-the-badge&logo=chart&logoColor=white" alt="Analytics Badge" />
 </div>
 
 <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<p align="center"><strong>Automated Back-End Development</strong></p>
+<p align="center"><strong>AI-Powered Insights</strong></p>
 </div>
 
 <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-<p align="center">Generates <strong>efficient</strong>, <strong>scalable</strong>, and <strong>feature-rich</strong> back-end code from simple text inputs, streamlining server-side development.</p>
+<p align="center">Get intelligent analytics, engagement predictions, and optimization recommendations powered by machine learning.</p>
 </div>
 
 
