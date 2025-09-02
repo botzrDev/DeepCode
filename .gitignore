@@ -68,3 +68,10 @@ memory-bank/
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+# Test and demo files
+test_zenalto_integration.py
+demo_zenalto_integration.py
+*.pyc
+__pycache__/
+.pytest_cache/
+deepcode_lab/
