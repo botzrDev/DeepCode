@@ -17,6 +17,60 @@ document_segmentation:
   # If document size > threshold and enabled=true, use segmentation workflow
   # If document size <= threshold or enabled=false, use traditional full-document reading
 
+# Workflow configuration
+workflow:
+  default_mode: "auto"  # auto, deepcode, zenalto, hybrid
+  auto_detection: true
+  fallback_mode: "deepcode"
+
+# ZENALTO-specific configuration
+zenalto:
+  platforms:
+    twitter:
+      enabled: true
+      rate_limit: 300
+      default_tone: "professional"
+    linkedin:
+      enabled: true
+      rate_limit: 100
+      default_tone: "professional"
+    instagram:
+      enabled: true
+      rate_limit: 200
+      default_tone: "casual"
+    facebook:
+      enabled: true
+      rate_limit: 25
+      default_tone: "friendly"
+    youtube:
+      enabled: true
+      rate_limit: 2
+      default_tone: "engaging"
+  
+  content_generation:
+    max_length:
+      twitter: 280
+      linkedin: 3000
+      instagram: 2200
+      facebook: 63206
+      youtube: 5000
+    default_hashtags: 5
+    ai_model: "anthropic/claude-3.5-sonnet"
+  
+  analytics:
+    enabled: true
+    tracking_period: "30d"
+    performance_metrics: ["engagement_rate", "reach", "impressions", "clicks"]
+  
+  scheduling:
+    enabled: true
+    optimal_times:
+      twitter: ["9:00", "13:00", "17:00"]
+      instagram: ["11:00", "18:00"]
+      linkedin: ["9:00", "14:00"]
+      facebook: ["15:00", "19:00"]
+      youtube: ["16:00", "20:00"]
+
 execution_engine: asyncio
 logger:
   transports: [console, file]
