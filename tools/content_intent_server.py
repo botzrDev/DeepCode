@@ -20,11 +20,12 @@ from mcp.types import (
     TextContent,
     ImageContent,
     EmbeddedResource,
-    LoggingLevel
+    LoggingLevel,
 )
 
 # Import social media prompts
 import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from prompts.social_prompts import CONTENT_INTENT_ANALYSIS_PROMPT
 
@@ -47,7 +48,9 @@ class ContentIntentServer:
         # User preference learning (would be stored in database)
         self.user_preferences = {}
 
-    async def analyze_intent(self, user_request: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def analyze_intent(
+        self, user_request: str, context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Analyze user request to understand content intent
 
@@ -66,25 +69,32 @@ class ContentIntentServer:
             if context:
                 if context.get("conversation_history"):
                     # Format conversation history
-                    history_items = context["conversation_history"][-5:]  # Last 5 messages
-                    conversation_history = "\n".join([
-                        f"User: {msg.get('user', '')}\nAssistant: {msg.get('assistant', '')}"
-                        for msg in history_items
-                    ])
+                    history_items = context["conversation_history"][
+                        -5:
+                    ]  # Last 5 messages
+                    conversation_history = "\n".join(
+                        [
+                            f"User: {msg.get('user', '')}\nAssistant: {msg.get('assistant', '')}"
+                            for msg in history_items
+                        ]
+                    )
 
                 if context.get("platform_status"):
                     # Format platform connection status
                     connected_platforms = [
-                        platform for platform, status in context["platform_status"].items()
+                        platform
+                        for platform, status in context["platform_status"].items()
                         if status.get("connected", False)
                     ]
-                    platform_context = f"Connected platforms: {', '.join(connected_platforms)}"
+                    platform_context = (
+                        f"Connected platforms: {', '.join(connected_platforms)}"
+                    )
 
             # Format the analysis prompt
             prompt = CONTENT_INTENT_ANALYSIS_PROMPT.format(
                 user_request=user_request,
                 conversation_history=conversation_history,
-                platform_context=platform_context
+                platform_context=platform_context,
             )
 
             # In a real implementation, this would call an AI model
@@ -94,7 +104,7 @@ class ContentIntentServer:
             return {
                 "success": True,
                 "intent_analysis": intent_analysis,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -102,7 +112,7 @@ class ContentIntentServer:
             return {
                 "success": False,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     async def _perform_intent_analysis(self, prompt: str) -> Dict[str, Any]:
@@ -131,7 +141,7 @@ class ContentIntentServer:
             "topics": [],
             "cta": "",
             "urgency": "Normal",
-            "additional_requirements": ""
+            "additional_requirements": "",
         }
 
         # Simple keyword-based analysis (would be replaced with AI)
@@ -168,14 +178,20 @@ class ContentIntentServer:
             analysis["tone"] = "Humorous"
 
         # Determine urgency
-        if "urgent" in prompt_lower or "asap" in prompt_lower or "immediately" in prompt_lower:
+        if (
+            "urgent" in prompt_lower
+            or "asap" in prompt_lower
+            or "immediately" in prompt_lower
+        ):
             analysis["urgency"] = "High"
         elif "schedule" in prompt_lower or "later" in prompt_lower:
             analysis["urgency"] = "Scheduled"
 
         return analysis
 
-    async def learn_user_preferences(self, user_id: str, intent_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def learn_user_preferences(
+        self, user_id: str, intent_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Learn user preferences from intent analysis history
 
@@ -193,7 +209,7 @@ class ContentIntentServer:
                     "common_tones": [],
                     "preferred_content_types": [],
                     "common_topics": [],
-                    "posting_patterns": {}
+                    "posting_patterns": {},
                 }
 
             preferences = self.user_preferences[user_id]
@@ -214,16 +230,24 @@ class ContentIntentServer:
                 # Update preferences with most common values
                 from collections import Counter
 
-                preferences["preferred_platforms"] = [p for p, _ in Counter(platforms).most_common(3)]
-                preferences["common_tones"] = [t for t, _ in Counter(tones).most_common(2)]
-                preferences["preferred_content_types"] = [ct for ct, _ in Counter(content_types).most_common(2)]
-                preferences["common_topics"] = [t for t, _ in Counter(topics).most_common(5)]
+                preferences["preferred_platforms"] = [
+                    p for p, _ in Counter(platforms).most_common(3)
+                ]
+                preferences["common_tones"] = [
+                    t for t, _ in Counter(tones).most_common(2)
+                ]
+                preferences["preferred_content_types"] = [
+                    ct for ct, _ in Counter(content_types).most_common(2)
+                ]
+                preferences["common_topics"] = [
+                    t for t, _ in Counter(topics).most_common(5)
+                ]
 
             return {
                 "success": True,
                 "user_id": user_id,
                 "preferences": preferences,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -232,10 +256,12 @@ class ContentIntentServer:
                 "success": False,
                 "user_id": user_id,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def get_content_suggestions(self, user_id: str, topic: str, platform: str) -> Dict[str, Any]:
+    async def get_content_suggestions(
+        self, user_id: str, topic: str, platform: str
+    ) -> Dict[str, Any]:
         """
         Get personalized content suggestions based on user preferences
 
@@ -255,9 +281,11 @@ class ContentIntentServer:
                 "topic": topic,
                 "platform": platform,
                 "suggested_content": [],
-                "recommended_tone": preferences.get("common_tones", ["Professional"])[0],
+                "recommended_tone": preferences.get("common_tones", ["Professional"])[
+                    0
+                ],
                 "suggested_hashtags": self._generate_hashtags(topic, platform),
-                "personalization_notes": "Based on your posting history and preferences"
+                "personalization_notes": "Based on your posting history and preferences",
             }
 
             # Generate content suggestions
@@ -267,7 +295,7 @@ class ContentIntentServer:
             return {
                 "success": True,
                 "suggestions": suggestions,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -275,12 +303,15 @@ class ContentIntentServer:
             return {
                 "success": False,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     def _generate_hashtags(self, topic: str, platform: str) -> List[str]:
         """Generate relevant hashtags for topic and platform"""
-        base_hashtags = [f"#{topic.replace(' ', '')}", f"#{topic.replace(' ', '').lower()}"]
+        base_hashtags = [
+            f"#{topic.replace(' ', '')}",
+            f"#{topic.replace(' ', '').lower()}",
+        ]
 
         # Platform-specific hashtags
         platform_hashtags = {
@@ -288,13 +319,15 @@ class ContentIntentServer:
             "instagram": ["#Instagram", "#InstaDaily"],
             "linkedin": ["#LinkedIn", "#Professional"],
             "facebook": ["#Facebook", "#Community"],
-            "youtube": ["#YouTube", "#Video"]
+            "youtube": ["#YouTube", "#Video"],
         }
 
         base_hashtags.extend(platform_hashtags.get(platform, []))
         return base_hashtags[:5]  # Limit to 5 hashtags
 
-    def _generate_content_ideas(self, topic: str, platform: str, preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _generate_content_ideas(
+        self, topic: str, platform: str, preferences: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Generate content ideas based on preferences"""
         ideas = []
 
@@ -304,7 +337,7 @@ class ContentIntentServer:
             f"What I've learned about {topic} recently",
             f"Thoughts on {topic} and future trends",
             f"Quick tip: {topic} best practices",
-            f"Question: What's your experience with {topic}?"
+            f"Question: What's your experience with {topic}?",
         ]
 
         preferred_tone = preferences.get("common_tones", ["Professional"])[0]
@@ -315,7 +348,7 @@ class ContentIntentServer:
                 "content": template,
                 "tone": preferred_tone,
                 "estimated_engagement": "Medium",
-                "hashtags": self._generate_hashtags(topic, platform)
+                "hashtags": self._generate_hashtags(topic, platform),
             }
             ideas.append(idea)
 
@@ -323,6 +356,7 @@ class ContentIntentServer:
 
 
 # MCP Server Tool Handlers
+
 
 async def handle_analyze_intent(arguments: Dict[str, Any]) -> List[TextContent]:
     """Handle analyze_intent tool call"""
@@ -333,10 +367,7 @@ async def handle_analyze_intent(arguments: Dict[str, Any]) -> List[TextContent]:
 
     result = await server.analyze_intent(user_request, context)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 async def handle_learn_preferences(arguments: Dict[str, Any]) -> List[TextContent]:
@@ -348,10 +379,7 @@ async def handle_learn_preferences(arguments: Dict[str, Any]) -> List[TextConten
 
     result = await server.learn_user_preferences(user_id, intent_history)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 async def handle_get_suggestions(arguments: Dict[str, Any]) -> List[TextContent]:
@@ -364,10 +392,7 @@ async def handle_get_suggestions(arguments: Dict[str, Any]) -> List[TextContent]
 
     result = await server.get_content_suggestions(user_id, topic, platform)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 # Tool definitions for MCP
@@ -380,7 +405,7 @@ CONTENT_INTENT_TOOLS = [
             "properties": {
                 "user_request": {
                     "type": "string",
-                    "description": "The user's natural language request"
+                    "description": "The user's natural language request",
                 },
                 "context": {
                     "type": "object",
@@ -389,17 +414,17 @@ CONTENT_INTENT_TOOLS = [
                         "conversation_history": {
                             "type": "array",
                             "items": {"type": "object"},
-                            "description": "Previous conversation messages"
+                            "description": "Previous conversation messages",
                         },
                         "platform_status": {
                             "type": "object",
-                            "description": "Current platform connection status"
-                        }
-                    }
-                }
+                            "description": "Current platform connection status",
+                        },
+                    },
+                },
             },
-            "required": ["user_request"]
-        }
+            "required": ["user_request"],
+        },
     ),
     Tool(
         name="learn_preferences",
@@ -407,18 +432,15 @@ CONTENT_INTENT_TOOLS = [
         inputSchema={
             "type": "object",
             "properties": {
-                "user_id": {
-                    "type": "string",
-                    "description": "Unique user identifier"
-                },
+                "user_id": {"type": "string", "description": "Unique user identifier"},
                 "intent_history": {
                     "type": "array",
                     "items": {"type": "object"},
-                    "description": "History of intent analyses"
-                }
+                    "description": "History of intent analyses",
+                },
             },
-            "required": ["user_id", "intent_history"]
-        }
+            "required": ["user_id", "intent_history"],
+        },
     ),
     Tool(
         name="get_suggestions",
@@ -426,23 +448,17 @@ CONTENT_INTENT_TOOLS = [
         inputSchema={
             "type": "object",
             "properties": {
-                "user_id": {
-                    "type": "string",
-                            "description": "Unique user identifier"
-                },
-                "topic": {
-                    "type": "string",
-                    "description": "Content topic or theme"
-                },
+                "user_id": {"type": "string", "description": "Unique user identifier"},
+                "topic": {"type": "string", "description": "Content topic or theme"},
                 "platform": {
                     "type": "string",
                     "enum": ["twitter", "instagram", "linkedin", "facebook", "youtube"],
-                    "description": "Target social media platform"
-                }
+                    "description": "Target social media platform",
+                },
             },
-            "required": ["user_id", "topic", "platform"]
-        }
-    )
+            "required": ["user_id", "topic", "platform"],
+        },
+    ),
 ]
 
 
