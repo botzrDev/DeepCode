@@ -488,7 +488,7 @@ class WorkflowRouter:
             zenalto_score = min(zenalto_score, 1.0)
 
         # Determine final workflow
-        if hybrid_potential and self.enable_hybrid and (deepcode_score > 0.2 and zenalto_score > 0.1):
+        if hybrid_potential and self.enable_hybrid and (deepcode_score >= 0.2 and zenalto_score >= 0.1):
             workflow_type = "hybrid"
             confidence = min((deepcode_score + zenalto_score) / 2, 1.0)
             reasoning = "Hybrid workflow detected - requires both research and social media components"
