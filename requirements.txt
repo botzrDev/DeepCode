@@ -12,3 +12,8 @@ pytest-asyncio>=0.21.0
 PyPDF2>=2.0.0
 reportlab>=3.5.0
 streamlit
+# Social Media API Dependencies
+tweepy>=4.14.0
+facebook-sdk>=3.1.0
+google-api-python-client>=2.0.0
+instagram-private-api>=1.6.0

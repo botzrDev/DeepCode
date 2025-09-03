@@ -8,8 +8,8 @@ and API interactions while providing a unified interface.
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
+from datetime import datetime
+from typing import Dict, Any, List
 
 import aiohttp
 from utils.rate_limiter import RateLimiter

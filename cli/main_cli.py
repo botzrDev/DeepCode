@@ -12,17 +12,19 @@ import sys
 import asyncio
 import argparse
 
-# 禁止生成.pyc文件
+# System path setup
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
-
-# 添加项目根目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-# 导入CLI应用
-from cli.cli_app import CLIApp, Colors
+# Local imports after path setup
+try:
+    from cli.cli_app import CLIApp, Colors
+except ImportError as e:
+    print(f"Import error: {e}")
+    sys.exit(1)
 
 
 def print_enhanced_banner():

@@ -23,6 +23,15 @@ workflow:
   auto_detection: true
   fallback_mode: "deepcode"
 
+# Workflow routing configuration
+workflow_routing:
+  default_mode: "auto"
+  confidence_threshold: 0.7
+  ambiguous_case_default: "deepcode"
+  enable_hybrid: true
+  cache_decisions: true
+  cache_ttl: 300
+
 # ZENALTO-specific configuration
 zenalto:
   platforms:

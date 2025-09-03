@@ -7,17 +7,19 @@ Streamlit Web Interface Main Application File
 import os
 import sys
 
-# Disable .pyc file generation
+# System path setup
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
-
-# Add parent directory to path for module imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-# Import UI modules
-from ui.layout import main_layout
+# Local imports after path setup
+try:
+    from ui.layout import main_layout
+except ImportError as e:
+    print(f"Import error: {e}")
+    sys.exit(1)
 
 
 def main():

@@ -11,23 +11,13 @@ This MCP server provides integration with various social media platforms:
 Handles OAuth authentication, content posting, analytics, and media management.
 """
 
-import os
-import json
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional, Sequence
-from datetime import datetime, timedelta
+from typing import Any, Dict, List
+from datetime import datetime
 
 # MCP Server imports
 from mcp.server import Server
-from mcp.types import (
-    Resource,
-    Tool,
-    TextContent,
-    ImageContent,
-    EmbeddedResource,
-    LoggingLevel,
-)
 
 # Social Media API clients and OAuth manager
 from utils.oauth_manager import OAuthManager
@@ -38,14 +28,6 @@ from social_apis.facebook_client import FacebookClient
 from social_apis.youtube_client import YouTubeClient
 
 # Database models for social media data
-from models.social_models import (
-    PlatformConnection,
-    SocialPost,
-    PostAnalytics,
-    MediaAsset,
-    PlatformType,
-    ConnectionStatus
-)
 
 
 class SocialMediaServer:

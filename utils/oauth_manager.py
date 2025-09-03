@@ -7,14 +7,13 @@ for all supported social media platforms.
 
 import os
 import json
-import asyncio
 import logging
 import secrets
 import base64
 import hashlib
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
-from urllib.parse import urlencode, parse_qs
+from urllib.parse import urlencode
 
 import aiohttp
 from cryptography.fernet import Fernet

@@ -74,7 +74,8 @@ from workflows.agents.content_intent_agent import ContentIntentAgent
 from workflows.agents.content_strategy_agent import ContentStrategyAgent
 from workflows.agents.content_generation_agent import ContentGenerationAgent
 from workflows.agents.social_content_parser import SocialContentParser
-from workflows.agents.analytics_scheduling_agents import AnalyticsAgent, SchedulingAgent
+from workflows.agents.analytics_agent import AnalyticsAgent
+from workflows.agents.scheduling_agent import SchedulingAgent
 
 # Environment configuration
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"  # Prevent .pyc file generation
@@ -1616,7 +1617,7 @@ class AgentOrchestrationEngine:
         self.mcp_agent = None  # Will be initialized when needed
 
         # Initialize workflow router
-        self.workflow_router = WorkflowRouter(self.logger)
+        self.workflow_router = WorkflowRouter(logger=self.logger)
 
         # Initialize agent collections
         self.deepcode_agents = self._init_deepcode_agents()
@@ -1681,7 +1682,8 @@ class AgentOrchestrationEngine:
             self.logger.info("Processing request through Agent Orchestration Engine...")
 
             # Detect workflow type using intelligent routing
-            workflow_type = await self.workflow_router.detect_workflow_type(input_data)
+            routing_result = await self.workflow_router.detect_workflow_type(input_data)
+            workflow_type = routing_result["workflow_type"]
 
             # Validate input for detected workflow
             validation_result = self.workflow_router.validate_workflow_input(
