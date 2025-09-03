@@ -7,20 +7,15 @@ It analyzes user requests to understand content goals, target platforms, audienc
 
 import os
 import json
-import asyncio
 import logging
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 # MCP Server imports
 from mcp.server import Server
 from mcp.types import (
-    Resource,
     Tool,
     TextContent,
-    ImageContent,
-    EmbeddedResource,
-    LoggingLevel,
 )
 
 # Import social media prompts

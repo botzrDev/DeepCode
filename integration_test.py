@@ -35,10 +35,9 @@ async def test_complete_integration():
         from utils.oauth_manager import OAuthManager
         from utils.secure_storage import SecureStorage
         from utils.rate_limiter import RateLimiter
-        from utils.platform_clients import BasePlatformClient
-        from models.social_models import PlatformConnection, SocialPost, PostAnalytics
+        from models.social_models import PlatformConnection
         from social_apis.twitter_client import TwitterClient
-        from social_apis.linkedin_client import LinkedInClient
+        # from social_apis.linkedin_client import LinkedInClient  # Unused
         from tools.social_media_server import SocialMediaServer
         
         print("✅ All imports successful")
@@ -69,7 +68,7 @@ async def test_complete_integration():
     print("\n3️⃣ Testing Platform Clients...")
     try:
         twitter_client = TwitterClient("twitter", oauth_manager, user_id)
-        linkedin_client = LinkedInClient("linkedin", oauth_manager, user_id)
+        # linkedin_client = LinkedInClient("linkedin", oauth_manager, user_id)  # Unused, commented out
         
         # Test client properties
         assert twitter_client.platform == "twitter"
@@ -84,7 +83,7 @@ async def test_complete_integration():
     # Test 4: Social Models
     print("\n4️⃣ Testing Social Models...")
     try:
-        from models.social_models import PlatformType, ConnectionStatus, PostStatus
+        from models.social_models import PlatformType, ConnectionStatus
         
         # Test model creation
         connection = PlatformConnection(
@@ -94,7 +93,7 @@ async def test_complete_integration():
         )
         
         assert connection.platform == PlatformType.TWITTER
-        assert connection.is_active() == True
+        assert connection.is_active()
         
         # Test model serialization
         connection_dict = connection.to_dict()
@@ -157,7 +156,7 @@ async def test_complete_integration():
         
         # Test platform connections check
         connections = await server.get_platform_connections(user_id)
-        assert connections["success"] == True
+        assert connections["success"]
         assert "connections" in connections
         
         print("✅ Social Media Server working")

@@ -7,11 +7,8 @@ including platform connections, content creation, scheduling, analytics, and cam
 
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-import asyncio
-import json
+from typing import Dict, Any, List
 
 
 class ZenAltoComponents:
@@ -121,7 +118,7 @@ class ZenAltoComponents:
             with col1:
                 char_count = platform_specific.get('character_count', len(content_text))
                 char_limit = platform_specific.get('character_limit', 280)
-                color = "normal" if char_count <= char_limit else "inverse"
+                # color = "normal" if char_count <= char_limit else "inverse"  # Unused
                 st.metric("Characters", f"{char_count}/{char_limit}", delta=None)
             
             with col2:
@@ -196,7 +193,7 @@ class ZenAltoComponents:
             
             col1, col2 = st.columns(2)
             with col1:
-                if st.button(f"✅ Schedule Post", key=f"confirm_schedule_{platform}"):
+                if st.button("✅ Schedule Post", key=f"confirm_schedule_{platform}"):
                     ZenAltoComponents._schedule_content(platform, content, schedule_datetime)
                     st.session_state[f'show_scheduler_{platform}'] = False
                     st.success(f"Post scheduled for {platform.title()} on {schedule_datetime.strftime('%Y-%m-%d at %H:%M')}!")

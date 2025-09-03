@@ -7,7 +7,6 @@ showing how the same multi-agent architecture now handles social media managemen
 """
 
 import asyncio
-import json
 from datetime import datetime
 
 # Import ZenAlto components (simplified for demo)
