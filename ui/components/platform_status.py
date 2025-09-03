@@ -9,6 +9,13 @@ from typing import Dict, List
 import asyncio
 from datetime import datetime
 
+# Import OAuth handler
+try:
+    from .oauth_handler import StreamlitOAuthHandler
+    OAUTH_AVAILABLE = True
+except ImportError:
+    OAUTH_AVAILABLE = False
+
 
 class PlatformStatusWidget:
     """Widget for displaying and managing platform connections."""
@@ -20,6 +27,16 @@ class PlatformStatusWidget:
         "facebook": {"icon": "📘", "name": "Facebook", "color": "#1877F2"},
         "youtube": {"icon": "📺", "name": "YouTube", "color": "#FF0000"}
     }
+    
+    def __init__(self):
+        """Initialize platform status widget."""
+        self.oauth_handler = None
+        if OAUTH_AVAILABLE:
+            try:
+                self.oauth_handler = StreamlitOAuthHandler()
+            except Exception as e:
+                st.warning(f"OAuth handler initialization failed: {e}")
+                self.oauth_handler = None
     
     def render(self):
         """Render platform connection status."""
@@ -61,6 +78,12 @@ class PlatformStatusWidget:
                 with col2:
                     st.metric("Posts", status.get('post_count', 'N/A'))
                 
+                # Show OAuth connection indicator
+                if status.get('oauth_connection'):
+                    st.caption("🔐 OAuth Connected")
+                else:
+                    st.caption("🔧 Demo Connected")
+                
                 # Disconnect button
                 if st.button(f"Disconnect", key=f"disconnect_{platform_id}"):
                     self._disconnect_platform(platform_id)
@@ -74,7 +97,27 @@ class PlatformStatusWidget:
             st.markdown("</div>", unsafe_allow_html=True)
     
     def _get_platform_status(self, platform_id: str) -> Dict:
-        """Get platform connection status from session state."""
+        """Get platform connection status from OAuth handler or session state."""
+        
+        # First check OAuth handler if available
+        if self.oauth_handler:
+            user_id = st.session_state.get('user_id', 'default')
+            is_connected = self.oauth_handler._check_connection_status(user_id, platform_id)
+            
+            if is_connected:
+                connection_info = st.session_state.get(f"connection_info_{platform_id}", {})
+                user_info = connection_info.get("user_info", {})
+                
+                return {
+                    'connected': True,
+                    'username': user_info.get('username', user_info.get('name', f'user_{platform_id}')),
+                    'followers': connection_info.get('followers', '1.2K'),
+                    'post_count': connection_info.get('posts_this_month', 24),
+                    'last_post': connection_info.get('last_post_date', 'Never'),
+                    'oauth_connection': True
+                }
+        
+        # Fallback to session state
         platform_connections = st.session_state.get('platform_connections', {})
         connection_data = platform_connections.get(platform_id, {})
         
@@ -84,19 +127,31 @@ class PlatformStatusWidget:
                 'username': connection_data.get('username', f'user_{platform_id}'),
                 'followers': connection_data.get('followers', '1.2K'),
                 'post_count': connection_data.get('posts_this_month', 24),
-                'last_post': connection_data.get('last_post_date', 'Never')
+                'last_post': connection_data.get('last_post_date', 'Never'),
+                'oauth_connection': False
             }
         else:
             return {
                 'connected': False,
                 'username': None,
                 'followers': 0,
-                'post_count': 0
+                'post_count': 0,
+                'oauth_connection': False
             }
     
     def _initiate_connection(self, platform: str):
         """Initiate OAuth connection flow."""
         st.session_state.connecting_platform = platform
+        
+        # Use OAuth handler if available
+        if self.oauth_handler and OAUTH_AVAILABLE:
+            try:
+                user_id = st.session_state.get('user_id', 'default')
+                self.oauth_handler._start_oauth_flow(platform, user_id)
+                return
+            except Exception as e:
+                st.error(f"OAuth flow failed: {e}")
+                # Fall through to mock connection
         
         # Mock successful connection for demo
         if 'platform_connections' not in st.session_state:
@@ -119,9 +174,29 @@ class PlatformStatusWidget:
     
     def _disconnect_platform(self, platform: str):
         """Disconnect from platform."""
+        
+        # Use OAuth handler if available
+        if self.oauth_handler and OAUTH_AVAILABLE:
+            try:
+                user_id = st.session_state.get('user_id', 'default')
+                self.oauth_handler._disconnect_platform(platform, user_id)
+                return
+            except Exception as e:
+                st.error(f"OAuth disconnect failed: {e}")
+                # Fall through to session state cleanup
+        
+        # Fallback: clean up session state
         if 'platform_connections' in st.session_state:
             if platform in st.session_state.platform_connections:
                 del st.session_state.platform_connections[platform]
+        
+        # Clean up OAuth session state as well
+        if f"connection_info_{platform}" in st.session_state:
+            del st.session_state[f"connection_info_{platform}"]
+        
+        connected_platforms = st.session_state.get("connected_platforms", {})
+        if platform in connected_platforms:
+            connected_platforms[platform] = False
         
         st.success(f"🔓 Disconnected from {platform.title()}")
         st.rerun()
