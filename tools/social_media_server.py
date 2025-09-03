@@ -26,7 +26,7 @@ from mcp.types import (
     TextContent,
     ImageContent,
     EmbeddedResource,
-    LoggingLevel
+    LoggingLevel,
 )
 
 # Social Media API clients (we'll implement these)
@@ -41,7 +41,7 @@ from models.social_models import (
     PlatformConnection,
     SocialPost,
     PostAnalytics,
-    MediaAsset
+    MediaAsset,
 )
 
 
@@ -74,7 +74,7 @@ class SocialMediaServer:
             "instagram": {"connected": False, "last_check": None},
             "linkedin": {"connected": False, "last_check": None},
             "facebook": {"connected": False, "last_check": None},
-            "youtube": {"connected": False, "last_check": None}
+            "youtube": {"connected": False, "last_check": None},
         }
 
     async def initialize_platform_clients(self):
@@ -120,7 +120,9 @@ class SocialMediaServer:
             if client:
                 is_connected = await client.verify_connection()
                 self.platform_status[platform]["connected"] = is_connected
-                self.platform_status[platform]["last_check"] = datetime.now().isoformat()
+                self.platform_status[platform]["last_check"] = (
+                    datetime.now().isoformat()
+                )
 
         except Exception as e:
             self.logger.error(f"Error checking {platform} connection: {str(e)}")
@@ -132,10 +134,12 @@ class SocialMediaServer:
         """Get current status of all social media platform connections"""
         return {
             "platform_status": self.platform_status,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
-    async def post_content(self, platform: str, content: Dict[str, Any]) -> Dict[str, Any]:
+    async def post_content(
+        self, platform: str, content: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Post content to specified social media platform
 
@@ -162,7 +166,7 @@ class SocialMediaServer:
                 "platform": platform,
                 "post_id": result.get("post_id"),
                 "url": result.get("url"),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -171,11 +175,15 @@ class SocialMediaServer:
                 "success": False,
                 "platform": platform,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def get_analytics(self, platform: str, post_id: Optional[str] = None,
-                           date_range: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    async def get_analytics(
+        self,
+        platform: str,
+        post_id: Optional[str] = None,
+        date_range: Optional[Dict[str, str]] = None,
+    ) -> Dict[str, Any]:
         """
         Get analytics data for posts or overall account performance
 
@@ -198,7 +206,7 @@ class SocialMediaServer:
                 "success": True,
                 "platform": platform,
                 "analytics": analytics,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -207,10 +215,12 @@ class SocialMediaServer:
                 "success": False,
                 "platform": platform,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def upload_media(self, platform: str, media_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def upload_media(
+        self, platform: str, media_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Upload media to social media platform
 
@@ -233,7 +243,7 @@ class SocialMediaServer:
                 "platform": platform,
                 "media_id": result.get("media_id"),
                 "url": result.get("url"),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -242,11 +252,12 @@ class SocialMediaServer:
                 "success": False,
                 "platform": platform,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def schedule_post(self, platform: str, content: Dict[str, Any],
-                           scheduled_time: str) -> Dict[str, Any]:
+    async def schedule_post(
+        self, platform: str, content: Dict[str, Any], scheduled_time: str
+    ) -> Dict[str, Any]:
         """
         Schedule a post for future publishing
 
@@ -260,7 +271,7 @@ class SocialMediaServer:
         """
         try:
             # Validate scheduled time
-            scheduled_dt = datetime.fromisoformat(scheduled_time.replace('Z', '+00:00'))
+            scheduled_dt = datetime.fromisoformat(scheduled_time.replace("Z", "+00:00"))
 
             if scheduled_dt <= datetime.now(scheduled_dt.tzinfo):
                 raise ValueError("Scheduled time must be in the future")
@@ -271,13 +282,13 @@ class SocialMediaServer:
                 "platform": platform,
                 "scheduled_time": scheduled_time,
                 "content_preview": content.get("text", "")[:100] + "...",
-                "status": "scheduled"
+                "status": "scheduled",
             }
 
             return {
                 "success": True,
                 "schedule_result": schedule_result,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -286,10 +297,12 @@ class SocialMediaServer:
                 "success": False,
                 "platform": platform,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def get_content_suggestions(self, platform: str, topic: str) -> Dict[str, Any]:
+    async def get_content_suggestions(
+        self, platform: str, topic: str
+    ) -> Dict[str, Any]:
         """
         Get content suggestions for a specific topic and platform
 
@@ -311,17 +324,17 @@ class SocialMediaServer:
                         "type": "text",
                         "content": f"Sample post about {topic} for {platform}",
                         "hashtags": [f"#{topic.replace(' ', '')}"],
-                        "tone": "engaging"
+                        "tone": "engaging",
                     }
                 ],
                 "trending_hashtags": [f"#{topic}", "#socialmedia"],
-                "best_practices": f"Tips for posting about {topic} on {platform}"
+                "best_practices": f"Tips for posting about {topic} on {platform}",
             }
 
             return {
                 "success": True,
                 "suggestions": suggestions,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -329,7 +342,7 @@ class SocialMediaServer:
             return {
                 "success": False,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
 
@@ -340,10 +353,7 @@ async def handle_get_platform_status(arguments: Dict[str, Any]) -> List[TextCont
     await server.initialize_platform_clients()
     result = await server.get_platform_status()
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 async def handle_post_content(arguments: Dict[str, Any]) -> List[TextContent]:
@@ -356,10 +366,7 @@ async def handle_post_content(arguments: Dict[str, Any]) -> List[TextContent]:
 
     result = await server.post_content(platform, content)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 async def handle_get_analytics(arguments: Dict[str, Any]) -> List[TextContent]:
@@ -373,10 +380,7 @@ async def handle_get_analytics(arguments: Dict[str, Any]) -> List[TextContent]:
 
     result = await server.get_analytics(platform, post_id, date_range)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 async def handle_schedule_post(arguments: Dict[str, Any]) -> List[TextContent]:
@@ -390,13 +394,12 @@ async def handle_schedule_post(arguments: Dict[str, Any]) -> List[TextContent]:
 
     result = await server.schedule_post(platform, content, scheduled_time)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
-async def handle_get_content_suggestions(arguments: Dict[str, Any]) -> List[TextContent]:
+async def handle_get_content_suggestions(
+    arguments: Dict[str, Any],
+) -> List[TextContent]:
     """Handle get_content_suggestions tool call"""
     server = SocialMediaServer()
     await server.initialize_platform_clients()
@@ -406,10 +409,7 @@ async def handle_get_content_suggestions(arguments: Dict[str, Any]) -> List[Text
 
     result = await server.get_content_suggestions(platform, topic)
 
-    return [TextContent(
-        type="text",
-        text=json.dumps(result, indent=2)
-    )]
+    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
 # Tool definitions for MCP
@@ -417,11 +417,7 @@ SOCIAL_MEDIA_TOOLS = [
     Tool(
         name="get_platform_status",
         description="Get current status of all social media platform connections",
-        inputSchema={
-            "type": "object",
-            "properties": {},
-            "required": []
-        }
+        inputSchema={"type": "object", "properties": {}, "required": []},
     ),
     Tool(
         name="post_content",
@@ -432,21 +428,32 @@ SOCIAL_MEDIA_TOOLS = [
                 "platform": {
                     "type": "string",
                     "enum": ["twitter", "instagram", "linkedin", "facebook", "youtube"],
-                    "description": "Target social media platform"
+                    "description": "Target social media platform",
                 },
                 "content": {
                     "type": "object",
                     "description": "Content data including text, media, and metadata",
                     "properties": {
                         "text": {"type": "string", "description": "Post text content"},
-                        "media_urls": {"type": "array", "items": {"type": "string"}, "description": "Media file URLs"},
-                        "hashtags": {"type": "array", "items": {"type": "string"}, "description": "Hashtags to include"},
-                        "link": {"type": "string", "description": "Link to include in post"}
-                    }
-                }
+                        "media_urls": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Media file URLs",
+                        },
+                        "hashtags": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Hashtags to include",
+                        },
+                        "link": {
+                            "type": "string",
+                            "description": "Link to include in post",
+                        },
+                    },
+                },
             },
-            "required": ["platform", "content"]
-        }
+            "required": ["platform", "content"],
+        },
     ),
     Tool(
         name="get_analytics",
@@ -457,20 +464,29 @@ SOCIAL_MEDIA_TOOLS = [
                 "platform": {
                     "type": "string",
                     "enum": ["twitter", "instagram", "linkedin", "facebook", "youtube"],
-                    "description": "Target social media platform"
+                    "description": "Target social media platform",
                 },
-                "post_id": {"type": "string", "description": "Specific post ID (optional)"},
+                "post_id": {
+                    "type": "string",
+                    "description": "Specific post ID (optional)",
+                },
                 "date_range": {
                     "type": "object",
                     "description": "Date range for analytics (optional)",
                     "properties": {
-                        "start_date": {"type": "string", "description": "Start date (ISO format)"},
-                        "end_date": {"type": "string", "description": "End date (ISO format)"}
-                    }
-                }
+                        "start_date": {
+                            "type": "string",
+                            "description": "Start date (ISO format)",
+                        },
+                        "end_date": {
+                            "type": "string",
+                            "description": "End date (ISO format)",
+                        },
+                    },
+                },
             },
-            "required": ["platform"]
-        }
+            "required": ["platform"],
+        },
     ),
     Tool(
         name="schedule_post",
@@ -481,23 +497,27 @@ SOCIAL_MEDIA_TOOLS = [
                 "platform": {
                     "type": "string",
                     "enum": ["twitter", "instagram", "linkedin", "facebook", "youtube"],
-                    "description": "Target social media platform"
+                    "description": "Target social media platform",
                 },
                 "content": {
                     "type": "object",
                     "description": "Post content data",
                     "properties": {
                         "text": {"type": "string", "description": "Post text content"},
-                        "media_urls": {"type": "array", "items": {"type": "string"}, "description": "Media file URLs"}
-                    }
+                        "media_urls": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Media file URLs",
+                        },
+                    },
                 },
                 "scheduled_time": {
                     "type": "string",
-                    "description": "Scheduled posting time (ISO format)"
-                }
+                    "description": "Scheduled posting time (ISO format)",
+                },
             },
-            "required": ["platform", "content", "scheduled_time"]
-        }
+            "required": ["platform", "content", "scheduled_time"],
+        },
     ),
     Tool(
         name="get_content_suggestions",
@@ -508,16 +528,13 @@ SOCIAL_MEDIA_TOOLS = [
                 "platform": {
                     "type": "string",
                     "enum": ["twitter", "instagram", "linkedin", "facebook", "youtube"],
-                    "description": "Target social media platform"
+                    "description": "Target social media platform",
                 },
-                "topic": {
-                    "type": "string",
-                    "description": "Content topic or theme"
-                }
+                "topic": {"type": "string", "description": "Content topic or theme"},
             },
-            "required": ["platform", "topic"]
-        }
-    )
+            "required": ["platform", "topic"],
+        },
+    ),
 ]
 
 

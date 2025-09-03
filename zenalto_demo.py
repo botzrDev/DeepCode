@@ -21,13 +21,28 @@ class MockSocialServer:
         return {
             "success": True,
             "platform_status": {
-                "twitter": {"connected": True, "last_check": datetime.now().isoformat()},
-                "instagram": {"connected": False, "last_check": datetime.now().isoformat()},
-                "linkedin": {"connected": True, "last_check": datetime.now().isoformat()},
-                "facebook": {"connected": False, "last_check": datetime.now().isoformat()},
-                "youtube": {"connected": False, "last_check": datetime.now().isoformat()}
+                "twitter": {
+                    "connected": True,
+                    "last_check": datetime.now().isoformat(),
+                },
+                "instagram": {
+                    "connected": False,
+                    "last_check": datetime.now().isoformat(),
+                },
+                "linkedin": {
+                    "connected": True,
+                    "last_check": datetime.now().isoformat(),
+                },
+                "facebook": {
+                    "connected": False,
+                    "last_check": datetime.now().isoformat(),
+                },
+                "youtube": {
+                    "connected": False,
+                    "last_check": datetime.now().isoformat(),
+                },
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     async def schedule_post(self, platform, content, scheduled_time):
@@ -38,9 +53,9 @@ class MockSocialServer:
                 "platform": platform,
                 "scheduled_time": scheduled_time,
                 "content_preview": content.get("text", "")[:50] + "...",
-                "status": "scheduled"
+                "status": "scheduled",
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -119,7 +134,7 @@ class ZenAltoDemo:
             "platform": "linkedin",
             "topic": "AI automation in business",
             "tone": "professional",
-            "audience": "business professionals"
+            "audience": "business professionals",
         }
 
         print(f"Generating content for: {content_request['platform']}")
@@ -131,14 +146,16 @@ class ZenAltoDemo:
         suggestions = await self.intent_server.get_content_suggestions(
             user_id="demo_user",
             topic=content_request["topic"],
-            platform=content_request["platform"]
+            platform=content_request["platform"],
         )
 
         if suggestions["success"]:
             suggestion_data = suggestions["suggestions"]
             print("💡 Content Suggestions:")
             print(f"  • Recommended Tone: {suggestion_data['recommended_tone']}")
-            print(f"  • Suggested Hashtags: {', '.join(suggestion_data['suggested_hashtags'])}")
+            print(
+                f"  • Suggested Hashtags: {', '.join(suggestion_data['suggested_hashtags'])}"
+            )
             print()
             print("📝 Sample Content Ideas:")
             for idea in suggestion_data["suggested_content"][:2]:  # Show first 2
@@ -159,7 +176,7 @@ class ZenAltoDemo:
             "content": {
                 "text": "Excited to share how AI is transforming business processes! #AI #Automation"
             },
-            "scheduled_time": "2025-01-15T10:00:00Z"
+            "scheduled_time": "2025-01-15T10:00:00Z",
         }
 
         print(f"Scheduling post for: {schedule_request['platform']}")
@@ -169,12 +186,14 @@ class ZenAltoDemo:
         schedule_result = await self.social_server.schedule_post(
             schedule_request["platform"],
             schedule_request["content"],
-            schedule_request["scheduled_time"]
+            schedule_request["scheduled_time"],
         )
 
         if schedule_result["success"]:
             print("✅ Post scheduled successfully!")
-            print(f"  • Schedule ID: {schedule_result['schedule_result']['schedule_id']}")
+            print(
+                f"  • Schedule ID: {schedule_result['schedule_result']['schedule_id']}"
+            )
             print(f"  • Status: {schedule_result['schedule_result']['status']}")
         else:
             print("❌ Scheduling failed")

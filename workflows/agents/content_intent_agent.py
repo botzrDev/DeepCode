@@ -62,7 +62,7 @@ class ContentIntentAgent:
         self,
         user_request: str,
         conversation_history: List[Dict[str, Any]] = None,
-        platform_context: Dict[str, Any] = None
+        platform_context: Dict[str, Any] = None,
     ) -> Dict[str, Any]:
         """
         Analyze user request to understand content intent and requirements
@@ -79,36 +79,42 @@ class ContentIntentAgent:
             # Prepare the prompt with context
             conversation_context = ""
             if conversation_history:
-                conversation_context = "\n".join([
-                    f"User: {msg.get('user', '')}\nAssistant: {msg.get('assistant', '')}"
-                    for msg in conversation_history[-5:]  # Last 5 messages for context
-                ])
+                conversation_context = "\n".join(
+                    [
+                        f"User: {msg.get('user', '')}\nAssistant: {msg.get('assistant', '')}"
+                        for msg in conversation_history[
+                            -5:
+                        ]  # Last 5 messages for context
+                    ]
+                )
 
             platform_info = ""
             if platform_context:
                 connected_platforms = [
-                    p for p, status in platform_context.items()
-                    if status.get('connected', False)
+                    p
+                    for p, status in platform_context.items()
+                    if status.get("connected", False)
                 ]
                 platform_info = f"Connected platforms: {', '.join(connected_platforms)}"
 
             prompt = CONTENT_INTENT_ANALYSIS_PROMPT.format(
                 user_request=user_request,
                 conversation_history=conversation_context,
-                platform_context=platform_info
+                platform_context=platform_info,
             )
 
             # Use MCP agent to analyze intent
             response = await self.mcp_agent.call_tool(
-                "content_intent_analysis",
-                {"prompt": prompt}
+                "content_intent_analysis", {"prompt": prompt}
             )
 
             # Parse and validate the response
             intent_analysis = self._parse_intent_response(response)
 
             # Log the analysis
-            self.logger.info(f"Content intent analyzed: {intent_analysis.get('intent_summary', '')}")
+            self.logger.info(
+                f"Content intent analyzed: {intent_analysis.get('intent_summary', '')}"
+            )
 
             return intent_analysis
 
@@ -128,7 +134,7 @@ class ContentIntentAgent:
         """
         try:
             # Try to parse as JSON first
-            if response.strip().startswith('{'):
+            if response.strip().startswith("{"):
                 return json.loads(response)
 
             # If not JSON, extract structured information from text
@@ -157,7 +163,7 @@ class ContentIntentAgent:
             "topics": [],
             "cta": "",
             "urgency": "Normal",
-            "additional_requirements": ""
+            "additional_requirements": "",
         }
 
         # Extract information from text (simplified implementation)
@@ -199,13 +205,11 @@ class ContentIntentAgent:
             "topics": [],
             "cta": "",
             "urgency": "Normal",
-            "additional_requirements": "AI-generated analysis"
+            "additional_requirements": "AI-generated analysis",
         }
 
     async def learn_user_preferences(
-        self,
-        user_id: str,
-        content_history: List[Dict[str, Any]]
+        self, user_id: str, content_history: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
         Learn and update user content preferences based on history
@@ -224,18 +228,22 @@ class ContentIntentAgent:
                 "common_topics": [],
                 "preferred_tones": [],
                 "posting_patterns": {},
-                "engagement_rates": {}
+                "engagement_rates": {},
             }
 
             if content_history:
                 # Extract preferences from history (simplified)
-                platforms = [item.get('platform') for item in content_history if item.get('platform')]
+                platforms = [
+                    item.get("platform")
+                    for item in content_history
+                    if item.get("platform")
+                ]
                 preferences["preferred_platforms"] = list(set(platforms))
 
                 topics = []
                 for item in content_history:
-                    if item.get('topics'):
-                        topics.extend(item['topics'])
+                    if item.get("topics"):
+                        topics.extend(item["topics"])
                 preferences["common_topics"] = list(set(topics))[:10]  # Top 10 topics
 
             return preferences
