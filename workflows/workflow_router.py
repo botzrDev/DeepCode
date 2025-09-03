@@ -337,23 +337,28 @@ class WorkflowRouter:
         # Hybrid patterns - requests that clearly need both workflows
         hybrid_patterns = [
             r".*twitter.*thread.*research.*paper",
+            r".*twitter.*thread.*algorithm",
+            r".*twitter.*thread.*implementation",
             r".*linkedin.*post.*about.*my.*code",
             r".*social.*media.*explain.*algorithm",
             r".*create.*posts.*about.*implementation",
             r".*share.*research.*on.*social",
             r".*turn.*paper.*into.*content",
             r".*promote.*code.*project",
-            r".*generate.*content.*from.*research"
+            r".*generate.*content.*from.*research",
+            r".*explaining.*my.*algorithm.*implementation",
+            r".*social.*posts.*about.*code",
+            r".*thread.*explaining.*algorithm"
         ]
         
         for pattern in hybrid_patterns:
             if re.search(pattern, user_request):
                 return True
         
-        # Check if both workflow indicators are present with significant scores
+        # Check if both workflow indicators are present with lower threshold
         pattern_scores = self.analyze_input_patterns_sync(user_request)
         return (pattern_scores["deepcode_score"] > 0.3 and 
-                pattern_scores["zenalto_score"] > 0.3)
+                pattern_scores["zenalto_score"] > 0.1)  # Lower threshold for zenalto
 
     def get_fallback_workflow(self, error_context: Dict) -> Dict[str, Any]:
         """
@@ -483,7 +488,7 @@ class WorkflowRouter:
             zenalto_score = min(zenalto_score, 1.0)
 
         # Determine final workflow
-        if hybrid_potential and self.enable_hybrid and (deepcode_score > 0.2 and zenalto_score > 0.2):
+        if hybrid_potential and self.enable_hybrid and (deepcode_score > 0.2 and zenalto_score > 0.1):
             workflow_type = "hybrid"
             confidence = min((deepcode_score + zenalto_score) / 2, 1.0)
             reasoning = "Hybrid workflow detected - requires both research and social media components"
@@ -519,8 +524,18 @@ class WorkflowRouter:
             indicators.append("hybrid_pattern_detected")
         if deepcode_score > 0.5:
             indicators.append("strong_deepcode_indicators")
+        elif deepcode_score > 0.2:
+            indicators.append("moderate_deepcode_indicators")
         if zenalto_score > 0.5:
             indicators.append("strong_zenalto_indicators")
+        elif zenalto_score > 0.2:
+            indicators.append("moderate_zenalto_indicators")
+        
+        # Add workflow-specific indicators when that workflow is chosen
+        if workflow_type == "zenalto" and zenalto_score > 0:
+            indicators.append("zenalto_patterns_detected")
+        elif workflow_type == "deepcode" and deepcode_score > 0:
+            indicators.append("deepcode_patterns_detected")
             
         return {
             "workflow_type": workflow_type,
@@ -580,3 +595,73 @@ class WorkflowRouter:
         if self._decision_cache:
             self._decision_cache.clear()
             self.logger.info("Decision cache cleared")
+
+    def validate_workflow_input(self, workflow_type: str, input_data: Dict) -> Dict[str, Any]:
+        """
+        Validate input data for a specific workflow type.
+        
+        Args:
+            workflow_type: The workflow type to validate for
+            input_data: Input data to validate
+            
+        Returns:
+            Dict containing validation results with 'valid' and 'warnings' keys
+        """
+        warnings = []
+        
+        try:
+            user_request = input_data.get("user_request", "")
+            file_types = input_data.get("file_types", [])
+
+            if workflow_type == "deepcode":
+                if not user_request and not file_types:
+                    warnings.append("DeepCode workflow performs best with research content or files")
+                    
+            elif workflow_type == "zenalto":
+                if not user_request:
+                    warnings.append("ZenAlto workflow requires a content creation request")
+                    
+            elif workflow_type == "hybrid":
+                if not user_request:
+                    warnings.append("Hybrid workflow requires a detailed request specification")
+                    
+            return {
+                "valid": True,
+                "warnings": warnings
+            }
+            
+        except Exception as e:
+            return {
+                "valid": False,
+                "warnings": [f"Validation error: {str(e)}"]
+            }
+
+    def get_workflow_description(self, workflow_type: str) -> str:
+        """
+        Get human-readable description of workflow capabilities.
+        
+        Args:
+            workflow_type: The workflow type identifier
+            
+        Returns:
+            String describing workflow capabilities
+        """
+        descriptions = {
+            "deepcode": (
+                "DeepCode workflow: Analyzes research papers, implements algorithms, "
+                "generates production-ready code from academic content, and processes "
+                "technical documentation with AI-powered code synthesis."
+            ),
+            "zenalto": (
+                "ZenAlto workflow: Creates engaging social media content, manages "
+                "posting schedules, analyzes performance metrics, and optimizes "
+                "content strategy across multiple platforms including Twitter, LinkedIn, Instagram."
+            ),
+            "hybrid": (
+                "Hybrid workflow: Combines research analysis with social media content creation. "
+                "Transforms technical papers into accessible social posts, creates educational "
+                "threads about implementations, and bridges academic insights with public engagement."
+            )
+        }
+        
+        return descriptions.get(workflow_type, f"Unknown workflow type: {workflow_type}")

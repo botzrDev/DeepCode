@@ -1616,7 +1616,7 @@ class AgentOrchestrationEngine:
         self.mcp_agent = None  # Will be initialized when needed
 
         # Initialize workflow router
-        self.workflow_router = WorkflowRouter(self.logger)
+        self.workflow_router = WorkflowRouter(logger=self.logger)
 
         # Initialize agent collections
         self.deepcode_agents = self._init_deepcode_agents()
@@ -1681,7 +1681,8 @@ class AgentOrchestrationEngine:
             self.logger.info("Processing request through Agent Orchestration Engine...")
 
             # Detect workflow type using intelligent routing
-            workflow_type = await self.workflow_router.detect_workflow_type(input_data)
+            routing_result = await self.workflow_router.detect_workflow_type(input_data)
+            workflow_type = routing_result["workflow_type"]
 
             # Validate input for detected workflow
             validation_result = self.workflow_router.validate_workflow_input(
