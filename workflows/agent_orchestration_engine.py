@@ -74,7 +74,8 @@ from workflows.agents.content_intent_agent import ContentIntentAgent
 from workflows.agents.content_strategy_agent import ContentStrategyAgent
 from workflows.agents.content_generation_agent import ContentGenerationAgent
 from workflows.agents.social_content_parser import SocialContentParser
-from workflows.agents.analytics_scheduling_agents import AnalyticsAgent, SchedulingAgent
+from workflows.agents.analytics_agent import AnalyticsAgent
+from workflows.agents.scheduling_agent import SchedulingAgent
 
 # Environment configuration
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"  # Prevent .pyc file generation
