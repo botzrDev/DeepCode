@@ -5,10 +5,8 @@ Implements Instagram-specific API integration with OAuth 2.0 authentication,
 media posting, and basic analytics.
 """
 
-import asyncio
-import logging
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 from utils.platform_clients import BasePlatformClient
 from models.social_models import PostAnalytics, PlatformType

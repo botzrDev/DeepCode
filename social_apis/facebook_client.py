@@ -5,10 +5,8 @@ Implements Facebook-specific API integration with OAuth 2.0 authentication,
 page management, content posting, and analytics.
 """
 
-import asyncio
-import logging
-from datetime import datetime
-from typing import Dict, Any, List, Optional
+from datetime import datetime, timedelta
+from typing import Dict, Any, List
 
 from utils.platform_clients import BasePlatformClient
 from models.social_models import PostAnalytics, PlatformType

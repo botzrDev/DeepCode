@@ -7,9 +7,7 @@ Run this as a standalone script to test OAuth functionality.
 
 import asyncio
 import logging
-import os
 from datetime import datetime
-from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +34,7 @@ async def demo_oauth_flow():
         print("\n🔍 Checking current platform connections...")
         connections = await server.get_platform_connections(test_user_id)
         
-        print(f"Platform connection status:")
+        print("Platform connection status:")
         for platform, status in connections["connections"].items():
             connected_icon = "✅" if status["connected"] else "❌"
             print(f"  {connected_icon} {platform.upper()}: {status.get('message', 'Not connected')}")
@@ -47,7 +45,7 @@ async def demo_oauth_flow():
             twitter_oauth = await server.oauth_manager.initiate_oauth_flow("twitter", test_user_id)
             
             if twitter_oauth.get("auth_url"):
-                print(f"✅ OAuth URL generated!")
+                print("✅ OAuth URL generated!")
                 print(f"🔗 Authorization URL: {twitter_oauth['auth_url'][:100]}...")
                 print(f"🔑 State: {twitter_oauth['state']}")
                 print(f"⏰ Expires in: {twitter_oauth['expires_in']} seconds")
@@ -63,7 +61,7 @@ async def demo_oauth_flow():
             linkedin_oauth = await server.oauth_manager.initiate_oauth_flow("linkedin", test_user_id)
             
             if linkedin_oauth.get("auth_url"):
-                print(f"✅ LinkedIn OAuth URL generated!")
+                print("✅ LinkedIn OAuth URL generated!")
                 print(f"🔗 Authorization URL: {linkedin_oauth['auth_url'][:100]}...")
             else:
                 print("❌ Failed to generate LinkedIn OAuth URL")
@@ -84,10 +82,10 @@ async def demo_oauth_flow():
         print("\n🔧 Testing Platform Client Creation...")
         try:
             # This will fail without tokens, but shows the interface
-            twitter_client = await server._get_platform_client("twitter", test_user_id)
+            await server._get_platform_client("twitter", test_user_id)  # twitter_client unused
             print("✅ Twitter client created (no auth)")
             
-            linkedin_client = await server._get_platform_client("linkedin", test_user_id) 
+            await server._get_platform_client("linkedin", test_user_id)  # linkedin_client unused 
             print("✅ LinkedIn client created (no auth)")
             
         except Exception as e:
@@ -130,7 +128,7 @@ async def demo_rate_limiter():
         
         # Show rate limit status
         status = twitter_limiter.get_rate_limit_status()
-        print(f"📊 Rate limit status:")
+        print("📊 Rate limit status:")
         print(f"   Requests made: {status['requests_made']}/{status['requests_made'] + status['requests_remaining']}")
         print(f"   Window resets in: {status['window_reset_in']:.1f} seconds")
         print(f"   Min interval: {status['min_interval']} seconds")
@@ -144,7 +142,7 @@ async def demo_rate_limiter():
         
         # Show updated status
         updated_status = twitter_limiter.get_rate_limit_status()
-        print(f"\n📊 Updated status:")
+        print("\n📊 Updated status:")
         print(f"   Requests made: {updated_status['requests_made']}")
         print(f"   Success rate: {updated_status['success_rate']:.1%}")
         

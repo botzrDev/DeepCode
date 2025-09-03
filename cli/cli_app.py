@@ -13,19 +13,20 @@ import asyncio
 import time
 import json
 
-# 禁止生成.pyc文件
+# System path setup
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
-
-# 添加项目根目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-# 导入MCP应用和工作流
-
-from cli.workflows import CLIWorkflowAdapter
-from cli.cli_interface import CLIInterface, Colors
+# Local imports after path setup
+try:
+    from cli.workflows import CLIWorkflowAdapter
+    from cli.cli_interface import CLIInterface, Colors
+except ImportError as e:
+    print(f"Import error: {e}")
+    sys.exit(1)
 
 
 class CLIApp:

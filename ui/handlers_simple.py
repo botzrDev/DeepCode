@@ -4,9 +4,7 @@ This bypasses the complex MCP agent dependencies for demonstration purposes
 """
 
 import streamlit as st
-import asyncio
 from datetime import datetime
-from typing import Dict, Any, Optional, Callable
 
 
 def initialize_session_state():
