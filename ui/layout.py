@@ -28,6 +28,13 @@ from .styles import get_main_styles
 # ZENALTO components (new - from the zenalto_ui subfolder)
 from ui.zenalto_ui.zenalto_components import ZenAltoComponents
 
+# New component imports
+from .components.platform_status import render_platform_status
+from .components.content_creator import render_content_creation
+from .components.analytics_dashboard import render_analytics_dashboard
+from .components.chat_interface import render_chat_interface
+from .components.settings import render_settings
+
 
 def setup_page_config():
     """Setup enhanced page configuration for DeepCode/ZENALTO"""
