@@ -18,7 +18,7 @@ __author__ = "DeepCode Team"
 # Import main components
 from .layout import main_layout
 from .components import display_header, display_features, display_status
-from .handlers import initialize_session_state
+from .handlers_simple import initialize_session_state
 from .styles import get_main_styles
 
 # Import application main function
