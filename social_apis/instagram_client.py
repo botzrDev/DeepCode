@@ -1,335 +1,448 @@
 """
-Instagram Basic Display API Client
+Instagram API Client
 
-Implements Instagram-specific API integration with OAuth 2.0 authentication,
-media posting, and basic analytics.
+Implements Instagram-specific API integration using instagram-private-api
+for full functionality including posting.
 """
 
+import asyncio
+from typing import Dict, Any, List, Optional
+import logging
 from datetime import datetime
-from typing import Dict, Any, List
 
-from utils.platform_clients import BasePlatformClient
-from models.social_models import PostAnalytics, PlatformType
+from .base_client import BaseSocialClient
+
+try:
+    from instagram_private_api import Client as InstagramAPI
+    INSTAGRAM_PRIVATE_API_AVAILABLE = True
+except ImportError:
+    INSTAGRAM_PRIVATE_API_AVAILABLE = False
+    InstagramAPI = None
 
 
-class InstagramClient(BasePlatformClient):
-    """Instagram Basic Display API client"""
+class InstagramClient(BaseSocialClient):
+    """
+    Instagram API client implementation.
     
-    def _get_api_base_url(self) -> str:
-        """Get Instagram API base URL"""
-        return "https://graph.instagram.com"
+    Note: Uses instagram-private-api for full functionality.
+    Official API has limited features.
     
-    def _get_rate_limits(self) -> Dict[str, Any]:
-        """Get Instagram-specific rate limits"""
-        return {
-            "media_read": {"requests": 200, "window": 3600},        # 200 per hour
-            "media_create": {"requests": 25, "window": 3600},       # 25 per hour
-            "user_info": {"requests": 240, "window": 3600},         # 240 per hour
-        }
+    Features:
+    - Post photos and videos
+    - Stories
+    - Reels
+    - IGTV
+    - Analytics
+    """
     
-    async def test_connection(self) -> Dict[str, Any]:
-        """Test Instagram API connection"""
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize Instagram client.
+        
+        Config should include:
+        - username
+        - password
+        OR
+        - access_token (for Graph API)
+        """
+        self.config = config
+        self.logger = logging.getLogger(__name__)
+        self.api = None
+        
+        if not INSTAGRAM_PRIVATE_API_AVAILABLE:
+            raise ImportError("instagram-private-api is required. Install with: pip install instagram-private-api")
+            
+        self._initialize_client()
+    
+    def _initialize_client(self):
+        """Initialize Instagram API client."""
+        try:
+            if self.config.get('username') and self.config.get('password'):
+                # Private API for full functionality
+                self.api = InstagramAPI(
+                    self.config['username'],
+                    self.config['password']
+                )
+            elif self.config.get('access_token'):
+                # Use Graph API (limited functionality)
+                self._init_graph_api()
+            else:
+                raise ValueError("Instagram credentials not provided")
+                
+        except Exception as e:
+            self.logger.error(f"Failed to initialize Instagram client: {e}")
+            raise
+    
+    async def post_content(
+        self,
+        text: str,
+        media: Optional[List[str]] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Post content to Instagram.
+        
+        Args:
+            text: Caption text
+            media: List of media file paths
+            **kwargs: Additional parameters like is_reel, location, tags
+        
+        Returns:
+            Dict containing post result
+        """
+        if not media:
+            return {
+                "success": False,
+                "error": "Instagram requires at least one media file",
+                "platform": "instagram"
+            }
         
         try:
-            result = await self._make_api_request(
-                method="GET",
-                endpoint="/me",
-                params={
-                    "fields": "id,username,media_count"
-                }
-            )
+            media_path = media[0]  # Use first media file
+            is_reel = kwargs.get('is_reel', False)
+            location = kwargs.get('location')
+            tags = kwargs.get('tags', [])
             
-            if result["success"]:
-                user_data = result["data"]
+            # Determine media type
+            if media_path.lower().endswith(('.mp4', '.mov')):
+                if is_reel:
+                    result = await self.post_reel(media_path, text, tags)
+                else:
+                    result = await self.post_video(media_path, text, tags)
+            else:
+                result = await self.post_photo(media_path, text, location, tags)
+            
+            if result.get('success'):
                 return {
                     "success": True,
+                    "post_id": result.get("post_id"),
+                    "url": result.get("url"),
                     "platform": "instagram",
-                    "user_id": user_data["id"],
-                    "username": user_data.get("username"),
-                    "media_count": user_data.get("media_count", 0),
-                    "message": "Successfully connected to Instagram API"
+                    "published_at": datetime.now(),
+                    "type": result.get("type", "photo")
+                }
+            else:
+                return result
+                
+        except Exception as e:
+            self.logger.error(f"Failed to post to Instagram: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "platform": "instagram"
+            }
+    
+    async def post_photo(
+        self,
+        image_path: str,
+        caption: str,
+        location: Optional[Dict] = None,
+        tags: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Post a photo to Instagram."""
+        
+        try:
+            # Process tags (user mentions)
+            if tags:
+                usertags = [{"user_id": await self._get_user_id(tag), "position": [0.5, 0.5]} 
+                          for tag in tags]
+            else:
+                usertags = None
+            
+            # Upload photo
+            result = await asyncio.to_thread(
+                self.api.post_photo,
+                image_path,
+                caption=caption,
+                location=location,
+                usertags=usertags
+            )
+            
+            if result.get('status') == 'ok':
+                media_id = result['media']['id']
+                media_code = result['media']['code']
+                
+                return {
+                    "success": True,
+                    "post_id": media_id,
+                    "url": f"https://www.instagram.com/p/{media_code}/",
+                    "type": "photo"
                 }
             else:
                 return {
                     "success": False,
-                    "platform": "instagram",
-                    "error": result.get("error", "Connection test failed")
+                    "error": "Failed to post photo"
                 }
-        
+                
         except Exception as e:
-            self.logger.error(f"Instagram connection test failed: {str(e)}")
+            self.logger.error(f"Failed to post photo: {e}")
             return {
                 "success": False,
-                "platform": "instagram",
-                "error": f"Connection test failed: {str(e)}"
+                "error": str(e)
             }
     
-    async def get_user_profile(self) -> Dict[str, Any]:
-        """Get authenticated user's Instagram profile"""
+    async def post_video(
+        self,
+        video_path: str,
+        caption: str,
+        tags: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Post a video to Instagram."""
         
         try:
-            result = await self._make_api_request(
-                method="GET",
-                endpoint="/me",
-                params={
-                    "fields": "id,username,account_type,media_count"
-                }
+            # For videos, we need a thumbnail - assume it's next to the video
+            thumbnail_path = video_path.replace('.mp4', '_thumb.jpg')
+            
+            result = await asyncio.to_thread(
+                self.api.post_video,
+                video_path,
+                thumbnail_path,
+                caption=caption
             )
             
-            if result["success"]:
-                profile_data = result["data"]
+            if result.get('status') == 'ok':
+                media_id = result['media']['id']
+                media_code = result['media']['code']
                 
                 return {
                     "success": True,
-                    "profile": {
-                        "platform_user_id": profile_data["id"],
-                        "username": profile_data.get("username"),
-                        "account_type": profile_data.get("account_type", "PERSONAL"),
-                        "media_count": profile_data.get("media_count", 0)
-                    }
+                    "post_id": media_id,
+                    "url": f"https://www.instagram.com/p/{media_code}/",
+                    "type": "video"
                 }
             else:
-                return result
-        
-        except Exception as e:
-            self.logger.error(f"Failed to get Instagram profile: {str(e)}")
-            return {
-                "success": False,
-                "error": f"Failed to get profile: {str(e)}"
-            }
-    
-    async def post_content(self, content: str, media_urls: List[str] = None) -> Dict[str, Any]:
-        """Post content to Instagram (Note: Basic Display API is read-only)"""
-        
-        # Instagram Basic Display API doesn't support posting
-        # For posting, you'd need Instagram Graph API (business accounts)
-        return {
-            "success": False,
-            "error": "Instagram Basic Display API doesn't support posting. Use Instagram Graph API for business accounts.",
-            "platform": "instagram"
-        }
-    
-    async def get_analytics(self, post_id: str = None) -> Dict[str, Any]:
-        """Get analytics for Instagram media or account"""
-        
-        try:
-            if post_id:
-                # Get specific media item analytics
-                result = await self._make_api_request(
-                    method="GET",
-                    endpoint=f"/{post_id}",
-                    params={
-                        "fields": "id,media_type,media_url,permalink,timestamp,caption"
-                    }
-                )
-                
-                if result["success"]:
-                    media_data = result["data"]
-                    
-                    # Instagram Basic Display API has limited analytics
-                    analytics = PostAnalytics(
-                        post_id=post_id,
-                        platform_post_id=media_data["id"],
-                        platform=PlatformType.INSTAGRAM,
-                        platform_metrics=media_data
-                    )
-                    
-                    return {
-                        "success": True,
-                        "analytics": analytics.to_dict()
-                    }
-                else:
-                    return result
-            else:
-                # Get user media for account analytics
-                result = await self._make_api_request(
-                    method="GET",
-                    endpoint="/me/media",
-                    params={
-                        "fields": "id,media_type,timestamp,caption",
-                        "limit": 25
-                    }
-                )
-                
-                if result["success"]:
-                    media_list = result["data"].get("data", [])
-                    
-                    return {
-                        "success": True,
-                        "account_analytics": {
-                            "total_media": len(media_list),
-                            "recent_media": media_list,
-                            "collected_at": datetime.now().isoformat()
-                        }
-                    }
-                else:
-                    return result
-        
-        except Exception as e:
-            self.logger.error(f"Failed to get Instagram analytics: {str(e)}")
-            return {
-                "success": False,
-                "error": f"Failed to get analytics: {str(e)}"
-            }
-    
-    async def get_media_list(self, limit: int = 25) -> Dict[str, Any]:
-        """Get user's recent media"""
-        
-        try:
-            result = await self._make_api_request(
-                method="GET",
-                endpoint="/me/media",
-                params={
-                    "fields": "id,media_type,media_url,permalink,timestamp,caption",
-                    "limit": limit
+                return {
+                    "success": False,
+                    "error": "Failed to post video"
                 }
+                
+        except Exception as e:
+            self.logger.error(f"Failed to post video: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    async def post_reel(
+        self,
+        video_path: str,
+        caption: str,
+        tags: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Post a reel to Instagram."""
+        
+        try:
+            thumbnail_path = video_path.replace('.mp4', '_thumb.jpg')
+            
+            result = await asyncio.to_thread(
+                self.api.post_video,
+                video_path,
+                thumbnail_path,
+                caption=caption,
+                to_reel=True
             )
             
-            if result["success"]:
+            if result.get('status') == 'ok':
+                media_id = result['media']['id']
+                media_code = result['media']['code']
+                
                 return {
                     "success": True,
-                    "media": result["data"].get("data", [])
+                    "post_id": media_id,
+                    "url": f"https://www.instagram.com/reel/{media_code}/",
+                    "type": "reel"
                 }
             else:
-                return result
-        
+                return {
+                    "success": False,
+                    "error": "Failed to post reel"
+                }
+                
         except Exception as e:
-            self.logger.error(f"Failed to get Instagram media list: {str(e)}")
+            self.logger.error(f"Failed to post reel: {e}")
             return {
                 "success": False,
-                "error": f"Failed to get media list: {str(e)}"
+                "error": str(e)
             }
-
-
-class InstagramGraphClient(BasePlatformClient):
-    """Instagram Graph API client for business accounts"""
     
-    def _get_api_base_url(self) -> str:
-        """Get Instagram Graph API base URL"""
-        return "https://graph.facebook.com/v18.0"
-    
-    def _get_rate_limits(self) -> Dict[str, Any]:
-        """Get Instagram Graph API rate limits"""
-        return {
-            "media_publish": {"requests": 25, "window": 3600},      # 25 per hour
-            "media_read": {"requests": 240, "window": 3600},        # 240 per hour
-            "insights": {"requests": 200, "window": 3600},          # 200 per hour
-        }
-    
-    async def test_connection(self) -> Dict[str, Any]:
-        """Test Instagram Graph API connection"""
+    async def get_user_info(self) -> Dict[str, Any]:
+        """Get authenticated user's Instagram information."""
         
         try:
-            # Get Instagram Business Account ID first
-            result = await self._make_api_request(
-                method="GET",
-                endpoint="/me/accounts",
-                params={
-                    "fields": "instagram_business_account"
-                }
+            result = await asyncio.to_thread(
+                self.api.current_user
             )
             
-            if result["success"]:
-                pages = result["data"].get("data", [])
-                instagram_accounts = []
+            if result:
+                return {
+                    "success": True,
+                    "user_info": {
+                        "id": result.get('pk'),
+                        "username": result.get('username'),
+                        "full_name": result.get('full_name', ''),
+                        "biography": result.get('biography', ''),
+                        "follower_count": result.get('follower_count', 0),
+                        "following_count": result.get('following_count', 0),
+                        "media_count": result.get('media_count', 0),
+                        "is_private": result.get('is_private', False),
+                        "profile_pic_url": result.get('profile_pic_url', '')
+                    }
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Failed to get user information"
+                }
                 
-                for page in pages:
-                    if "instagram_business_account" in page:
-                        instagram_accounts.append(page["instagram_business_account"])
+        except Exception as e:
+            self.logger.error(f"Failed to get user info: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    async def get_analytics(
+        self,
+        post_ids: List[str],
+        metrics: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Get analytics for Instagram posts.
+        
+        Returns:
+        {
+            "success": bool,
+            "metrics": {
+                "post_id": {
+                    "likes": int,
+                    "comments": int,
+                    "saves": int,
+                    "impressions": int,
+                    "reach": int,
+                    "engagement_rate": float
+                }
+            }
+        }
+        """
+        analytics = {}
+        
+        for post_id in post_ids:
+            try:
+                # Get media info
+                result = await asyncio.to_thread(
+                    self.api.media_info,
+                    post_id
+                )
                 
-                if instagram_accounts:
-                    ig_account = instagram_accounts[0]  # Use first available account
+                if result.get('status') == 'ok':
+                    media = result['items'][0]
                     
-                    # Test with account info
-                    account_result = await self._make_api_request(
-                        method="GET",
-                        endpoint=f"/{ig_account['id']}",
-                        params={
-                            "fields": "id,username,name,biography,followers_count,media_count"
-                        }
+                    analytics[post_id] = {
+                        "likes": media.get('like_count', 0),
+                        "comments": media.get('comment_count', 0),
+                        "saves": media.get('saved_count', 0),
+                        "impressions": media.get('impression_count', 0),
+                        "reach": media.get('reach_count', 0)
+                    }
+                    
+                    # Calculate engagement rate
+                    total_interactions = (
+                        analytics[post_id]["likes"] +
+                        analytics[post_id]["comments"] +
+                        analytics[post_id]["saves"]
                     )
+                    reach = analytics[post_id]["reach"] or 1
+                    analytics[post_id]["engagement_rate"] = (total_interactions / reach) * 100
+                else:
+                    analytics[post_id] = {}
                     
-                    if account_result["success"]:
-                        account_data = account_result["data"]
-                        return {
-                            "success": True,
-                            "platform": "instagram_business",
-                            "user_id": account_data["id"],
-                            "username": account_data.get("username"),
-                            "name": account_data.get("name"),
-                            "followers_count": account_data.get("followers_count", 0),
-                            "message": "Successfully connected to Instagram Graph API"
-                        }
-                    else:
-                        return account_result
+            except Exception as e:
+                self.logger.error(f"Failed to get analytics for {post_id}: {e}")
+                analytics[post_id] = {}
+        
+        return {
+            "success": True,
+            "metrics": analytics
+        }
+    
+    async def delete_post(self, post_id: str) -> Dict[str, Any]:
+        """Delete an Instagram post."""
+        
+        try:
+            result = await asyncio.to_thread(
+                self.api.delete_media,
+                post_id
+            )
+            
+            if result.get('status') == 'ok':
+                return {
+                    "success": True,
+                    "message": f"Instagram post {post_id} deleted successfully"
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Failed to delete post"
+                }
+        
+        except Exception as e:
+            self.logger.error(f"Failed to delete Instagram post {post_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    async def update_post(
+        self,
+        post_id: str,
+        text: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Update an existing Instagram post.
+        Note: Instagram has limited editing capabilities.
+        """
+        if text:
+            try:
+                result = await asyncio.to_thread(
+                    self.api.edit_media,
+                    post_id,
+                    caption=text
+                )
+                
+                if result.get('status') == 'ok':
+                    return {
+                        "success": True,
+                        "post_id": post_id,
+                        "updated_at": datetime.now(),
+                        "message": "Caption updated successfully"
+                    }
                 else:
                     return {
                         "success": False,
-                        "platform": "instagram_business",
-                        "error": "No Instagram Business Account found"
+                        "error": "Failed to update caption"
                     }
-            else:
-                return result
-        
-        except Exception as e:
-            self.logger.error(f"Instagram Graph API connection test failed: {str(e)}")
-            return {
-                "success": False,
-                "platform": "instagram_business",
-                "error": f"Connection test failed: {str(e)}"
-            }
-    
-    async def get_user_profile(self) -> Dict[str, Any]:
-        """Get Instagram business account profile"""
-        
-        try:
-            # This would require getting the Instagram Business Account ID
-            # Implementation would be similar to test_connection method
-            return await self.test_connection()
-        
-        except Exception as e:
-            self.logger.error(f"Failed to get Instagram business profile: {str(e)}")
-            return {
-                "success": False,
-                "error": f"Failed to get profile: {str(e)}"
-            }
-    
-    async def post_content(self, content: str, media_urls: List[str] = None) -> Dict[str, Any]:
-        """Post content to Instagram business account"""
-        
-        try:
-            # This would implement the Instagram Graph API posting flow:
-            # 1. Upload media to Instagram
-            # 2. Create media container
-            # 3. Publish media container
             
+            except Exception as e:
+                self.logger.error(f"Failed to update Instagram post {post_id}: {e}")
+                return {
+                    "success": False,
+                    "error": str(e)
+                }
+        else:
             return {
                 "success": False,
-                "error": "Instagram Graph API posting not fully implemented yet",
-                "platform": "instagram_business"
-            }
-        
-        except Exception as e:
-            self.logger.error(f"Failed to post to Instagram business: {str(e)}")
-            return {
-                "success": False,
-                "error": f"Failed to post: {str(e)}"
+                "error": "No caption text provided for update"
             }
     
-    async def get_analytics(self, post_id: str = None) -> Dict[str, Any]:
-        """Get Instagram business analytics"""
-        
+    async def _get_user_id(self, username: str) -> str:
+        """Get user ID from username."""
         try:
-            # Instagram Graph API provides rich analytics for business accounts
-            return {
-                "success": False,
-                "error": "Instagram Graph API analytics not fully implemented yet",
-                "platform": "instagram_business"
-            }
-        
-        except Exception as e:
-            self.logger.error(f"Failed to get Instagram business analytics: {str(e)}")
-            return {
-                "success": False,
-                "error": f"Failed to get analytics: {str(e)}"
-            }
+            result = await asyncio.to_thread(
+                self.api.username_info,
+                username
+            )
+            return result['user']['pk']
+        except:
+            return None
+    
