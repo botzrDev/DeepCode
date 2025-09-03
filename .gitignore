@@ -75,3 +75,21 @@ demo_zenalto_integration.py
 __pycache__/
 .pytest_cache/
 deepcode_lab/
+
+# OAuth and Social Media Security
+.zenalto_encryption_key
+.zenalto_storage/
+mcp_agent.secrets.yaml
+.env
+.env.local
+.env.production
+oauth_tokens/
+platform_credentials/
+
+# Social Media API Keys (never commit these)
+twitter_credentials.json
+linkedin_credentials.json
+facebook_credentials.json
+instagram_credentials.json
+google_credentials.json
+youtube_credentials.json
