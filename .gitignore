@@ -5,7 +5,6 @@ __pycache__/
 .eggs/
 *.tgz
 *.tar.gz
-*.ini
 
 # Virtual Environment
 .venv/
@@ -58,9 +57,10 @@ TODO.md
 ignore_this.txt
 *.ignore.*
 
-# unit-test files
-test_*
+# Integration test files (but keep formal test suite in tests/)
 run_indexer_with_filtering.py
+test_zenalto_integration.py
+demo_zenalto_integration.py
 
 # Cline files
 memory-bank/
@@ -68,12 +68,8 @@ memory-bank/
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
-# Test and demo files
-test_zenalto_integration.py
-demo_zenalto_integration.py
 *.pyc
 __pycache__/
-.pytest_cache/
 deepcode_lab/
 
 # OAuth and Social Media Security
